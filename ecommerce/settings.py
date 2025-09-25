@@ -24,7 +24,7 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 
 
 # ALLOWED_HOSTS = []
-# ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
 
 # Application definition
