@@ -7,14 +7,6 @@ from decouple import config
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'django-insecure-73tnj)7akhw!533^5p4g7pbpmq%=l-ypquc=(0bw_=&fvs#4@&'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
 
 
 SECRET_KEY = config('SECRET_KEY', default='your-secret-key-here')
@@ -27,6 +19,7 @@ ALLOWED_HOSTS = ["127.0.0.1", "localhost", "e-commerce-nmdk.onrender.com"]
 # ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
 
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -37,9 +30,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
-    'django.contrib.sites',  # যদি django-allauth ব্যবহার করেন
+    'django.contrib.sites',  
     'crispy_forms',
-    'crispy_bootstrap5',  # যদি bootstrap 5 ব্যবহার করেন
+    'crispy_bootstrap5',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -56,7 +49,7 @@ INSTALLED_APPS = [
 ]
 
 
-SITE_ID = 1
+SITE_ID = 2
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -175,11 +168,9 @@ SESSION_COOKIE_AGE = 86400  # 1 day
 SESSION_SAVE_EVERY_REQUEST = True
 
 
-
 # Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # For production
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
-
 
 
 # SMTP Configuration (for production)
@@ -190,15 +181,12 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 
 
-
 #--------------- Django Allauth Configuration------------------
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Default
     'allauth.account.auth_backends.AuthenticationBackend',  # For django-allauth
 ]
-
-
 
 # Google OAuth credentials (add to .env file)
 
