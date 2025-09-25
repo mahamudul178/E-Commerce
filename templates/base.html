@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}E-commerce Store{% endblock %}</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+        }
+
+        body {
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 100px 0;
+            text-align: center;
+        }
+
+        .product-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-image {
+            height: 250px;
+            object-fit: cover;
+            width: 100%;
+        }
+
+        .badge-discount {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #dc3545;
+            color: white;
+            border-radius: 20px;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            border: none;
+            border-radius: 25px;
+            padding: 10px 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+        }
+
+        .cart-badge {
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.7rem;
+            position: absolute;
+            top: -8px;
+            right: -8px;
+        }
+
+        .footer {
+            background: #343a40;
+            color: white;
+            padding: 40px 0;
+            margin-top: 60px;
+        }
+
+        .footer a,
+        .footer p,
+        .footer ul {
+            color: white !important;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .category-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .price-original {
+            text-decoration: line-through;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .price-current {
+            color: #dc3545;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .rating-stars {
+            color: #ffc107;
+        }
+
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 60px 0;
+            }
+
+            .product-image {
+                height: 200px;
+            }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="fas fa-store"></i> ShopEase
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">
+                            <i class="fas fa-home"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'products:product_list' %}">
+                            <i class="fas fa-th-large"></i> Products
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Search Form -->
+                <form class="d-flex me-3" method="GET" action="{% url 'products:product_list' %}">
+                    <div class="input-group">
+                        <input class="form-control" type="search" placeholder="Search products..." name="search"
+                            value="{{ request.GET.search }}" />
+                        <button class="btn btn-outline-light" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <ul class="navbar-nav">
+                    <!-- Cart -->
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="{% url 'cart:cart_detail' %}">
+                            <i class="fas fa-shopping-cart"></i>
+                            {% if cart_total_items > 0 %}
+                            <span class="cart-badge">{{ cart_total_items }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+
+                    <!-- User Menu -->
+                    {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="fas fa-user"></i>
+                            {{ user.first_name|default:user.username }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'accounts:profile' %}">
+                                    <i class="fas fa-user-circle"></i> Profile
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'orders:order_list' %}">
+                                    <i class="fas fa-list"></i> My Orders
+                                </a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider" />
+                            </li>
+                            <li>
+                                <form method="post" action="{% url 'accounts:logout' %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item"
+                                        style="background: none; border: none; text-align: left; width: 100%; padding: 0.375rem 1rem;">
+                                        <i class="fas fa-sign-out-alt"></i> Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'accounts:login' %}">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'accounts:register' %}">
+                            <i class="fas fa-user-plus"></i> Register
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            <i class="fas fa-info-circle"></i> {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main>{% block content %}{% endblock %}</main>
+
+    <!-- Footer -->
+    <footer class="footer text-white">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5><i class="fas fa-store"></i> ShopEase</h5>
+                    <p class="text-muted">
+                        Your one-stop destination for quality products at amazing prices.
+                        We deliver excellence right to your doorstep.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="text-white me-3"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h6>Quick Links</h6>
+                    <ul class="list-unstyled">
+                        <li>
+                            <a href="{% url 'home' %}" class="text-muted text-decoration-none">Home</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'products:product_list' %}"
+                                class="text-muted text-decoration-none">Products</a>
+                        </li>
+                        <li>
+                            <a href="#" class="text-muted text-decoration-none">About Us</a>
+                        </li>
+                        <li>
+                            <a href="#" class="text-muted text-decoration-none">Contact</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h6>Customer Service</h6>
+                    <ul class="list-unstyled">
+                        <li>
+                            <a href="#" class="text-muted text-decoration-none">Help Center</a>
+                        </li>
+                        <li>
+                            <a href="#" class="text-muted text-decoration-none">Returns</a>
+                        </li>
+                        <li>
+                            <a href="#" class="text-muted text-decoration-none">Shipping Info</a>
+                        </li>
+                        <li>
+                            <a href="#" class="text-muted text-decoration-none">Track Order</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h6>Legal</h6>
+                    <ul class="list-unstyled">
+                        <li>
+                            <a href="#" class="text-muted text-decoration-none">Privacy Policy</a>
+                        </li>
+                        <li>
+                            <a href="#" class="text-muted text-decoration-none">Terms of Service</a>
+                        </li>
+                        <li>
+                            <a href="#" class="text-muted text-decoration-none">Cookie Policy</a>
+                        </li>
+                        <li>
+                            <a href="#" class="text-muted text-decoration-none">Refund Policy</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h6>Contact Info</h6>
+                    <ul class="list-unstyled text-muted">
+                        <li><i class="fas fa-phone"></i>01521750477</li>
+                        <li><i class="fas fa-envelope"></i><a href="">mh1445156@gmail.com </a> </li>
+                        <li>
+                            <i class="fas fa-map-marker-alt"></i> Rajshahi, Bangladesh
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4" />
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="text-muted mb-0">Mahamudul Hasan</p>
+                </div>
+                <div class="col-md-6 text-end">Your one-stop destination for quality products at amazing price
+                    <img src="https://via.placeholder.com/40x25/007bff/fff?text=VISA" alt="Visa" class="me-2" />
+                    <img src="https://via.placeholder.com/40x25/ff6900/fff?text=MC" alt="Mastercard" class="me-2" />
+                    <img src="https://via.placeholder.com/40x25/009cde/fff?text=AMEX" alt="American Express"
+                        class="me-2" />
+                    <img src="https://via.placeholder.com/40x25/0070ba/fff?text=PP" alt="PayPal" />
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JavaScript -->
+    <script>
+        // Add to cart with AJAX
+        function addToCart(productId) {
+            const quantity = document.getElementById("quantity")
+                ? document.getElementById("quantity").value
+                : 1;
+
+            fetch(`/cart/add/${productId}/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]")
+                        .value,
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+                body: `quantity=${quantity}`,
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.success) {
+                        // Update cart badge
+                        const cartBadge = document.querySelector(".cart-badge");
+                        if (cartBadge) {
+                            cartBadge.textContent = data.cart_count;
+                        } else if (data.cart_count > 0) {
+                            // Create cart badge if it doesn't exist
+                            const cartLink = document.querySelector('a[href*="cart"]');
+                            const badge = document.createElement("span");
+                            badge.className = "cart-badge";
+                            badge.textContent = data.cart_count;
+                            cartLink.appendChild(badge);
+                        }
+
+                        // Show success message
+                        showMessage("success", data.message);
+                    } else {
+                        showMessage(
+                            "danger",
+                            data.message || "Error adding item to cart"
+                        );
+                    }
+                })
+                .catch((error) => {
+                    showMessage("danger", "Error adding item to cart");
+                });
+        }
+
+        // Show message function
+        function showMessage(type, message) {
+            const alertDiv = document.createElement("div");
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-info-circle"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+            const container = document.querySelector(".container");
+            container.insertBefore(alertDiv, container.firstChild);
+
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // Quantity input validation
+        document.addEventListener("DOMContentLoaded", function () {
+            const quantityInputs = document.querySelectorAll(
+                'input[type="number"][name="quantity"]'
+            );
+            quantityInputs.forEach((input) => {
+                input.addEventListener("change", function () {
+                    const min = parseInt(this.min) || 1;
+                    const max = parseInt(this.max) || 999;
+                    const value = parseInt(this.value) || 1;
+
+                    if (value < min) this.value = min;
+                    if (value > max) this.value = max;
+                });
+            });
+        });
+
+        // Image lazy loading
+        document.addEventListener("DOMContentLoaded", function () {
+            const images = document.querySelectorAll("img[data-src]");
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.remove("lazy");
+                        imageObserver.unobserve(img);
+                    }
+                });
+            });
+
+            images.forEach((img) => imageObserver.observe(img));
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,370 @@
+<!-- orders/order_list.html -->
+{% extends 'base.html' %}
+
+{% block title %}My Orders - ShopEase{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div>
+                    <h2><i class="fas fa-list-alt"></i> My Orders</h2>
+                    <p class="text-muted mb-0">Track and manage your orders</p>
+                </div>
+                <a href="{% url 'products:product_list' %}" class="btn btn-primary">
+                    <i class="fas fa-shopping-bag"></i> Continue Shopping
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if orders %}
+        <div class="row">
+            {% for order in orders %}
+                <div class="col-12 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-light">
+                            <div class="row align-items-center">
+                                <div class="col-md-3">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-receipt text-primary"></i>
+                                        Order #{{ order.order_number }}
+                                    </h6>
+                                </div>
+                                <div class="col-md-2">
+                                    <small class="text-muted">Order Date</small><br>
+                                    <strong>{{ order.created_at|date:"M d, Y" }}</strong>
+                                </div>
+                                <div class="col-md-2">
+                                    <small class="text-muted">Total Amount</small><br>
+                                    <strong class="text-success">${{ order.total }}</strong>
+                                </div>
+                                <div class="col-md-2">
+                                    <small class="text-muted">Payment Status</small><br>
+                                    {% if order.payment_status == 'completed' %}
+                                        <span class="badge bg-success">{{ order.payment_status|title }}</span>
+                                    {% elif order.payment_status == 'pending' %}
+                                        <span class="badge bg-warning">{{ order.payment_status|title }}</span>
+                                    {% elif order.payment_status == 'failed' %}
+                                        <span class="badge bg-danger">{{ order.payment_status|title }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ order.payment_status|title }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-2">
+                                    <small class="text-muted">Order Status</small><br>
+                                    {% if order.status == 'delivered' %}
+                                        <span class="badge bg-success">{{ order.status|title }}</span>
+                                    {% elif order.status == 'shipped' %}
+                                        <span class="badge bg-info">{{ order.status|title }}</span>
+                                    {% elif order.status == 'processing' %}
+                                        <span class="badge bg-primary">{{ order.status|title }}</span>
+                                    {% elif order.status == 'cancelled' %}
+                                        <span class="badge bg-danger">{{ order.status|title }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ order.status|title }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-1 text-end">
+                                    <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h6 class="mb-2">Items ({{ order.get_total_items }} item{{ order.get_total_items|pluralize }})</h6>
+                                    <div class="row">
+                                        {% for item in order.items.all|slice:":3" %}
+                                            <div class="col-md-4 mb-2">
+                                                <div class="d-flex align-items-center">
+                                                    {% if item.product.images.first %}
+                                                        <img src="{{ item.product.images.first.image.url }}" 
+                                                             class="rounded me-2" 
+                                                             style="width: 40px; height: 40px; object-fit: cover;" 
+                                                             alt="{{ item.product_name }}">
+                                                    {% else %}
+                                                        <div class="bg-light rounded me-2 d-flex align-items-center justify-content-center" 
+                                                             style="width: 40px; height: 40px;">
+                                                            <i class="fas fa-image text-muted"></i>
+                                                        </div>
+                                                    {% endif %}
+                                                    <div class="flex-grow-1">
+                                                        <small class="d-block">{{ item.product_name|truncatechars:25 }}</small>
+                                                        <small class="text-muted">Qty: {{ item.quantity }}</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                        {% if order.items.count > 3 %}
+                                            <div class="col-md-4">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-plus"></i> {{ order.items.count|add:"-3" }} more item{{ order.items.count|add:"-3"|pluralize }}
+                                                </small>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-end">
+                                        <h6 class="mb-1">Shipping Address</h6>
+                                        <p class="text-muted mb-0" style="font-size: 0.9rem;">
+                                            {{ order.shipping_name }}<br>
+                                            {{ order.shipping_address_1 }}
+                                            {% if order.shipping_address_2 %}, {{ order.shipping_address_2 }}{% endif %}<br>
+                                            {{ order.shipping_city }}, {{ order.shipping_state }} {{ order.shipping_postal_code }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-light">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-truck"></i>
+                                        {% if order.status == 'delivered' %}
+                                            Delivered on {{ order.updated_at|date:"M d, Y" }}
+                                        {% elif order.status == 'shipped' %}
+                                            Shipped • Expected delivery in 3-5 business days
+                                        {% elif order.status == 'processing' %}
+                                            Being prepared for shipment
+                                        {% elif order.status == 'pending' %}
+                                            Order placed • Processing will begin soon
+                                        {% elif order.status == 'cancelled' %}
+                                            Order cancelled on {{ order.updated_at|date:"M d, Y" }}
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i> View Details
+                                        </a>
+                                        <!-- {% if order.status == 'delivered' %}
+                                            <button class="btn btn-sm btn-outline-secondary" onclick="reorderItems('{{ order.id }}')">
+                                                <i class="fas fa-redo"></i> Reorder
+                                            </button>
+                                        {% endif %}
+                                        {% if order.status == 'pending' or order.status == 'processing' %}
+                                            <button class="btn btn-sm btn-outline-danger" onclick="cancelOrder('{{ order.id }}')">
+                                                <i class="fas fa-times"></i> Cancel
+                                            </button>
+                                        {% endif %} -->
+
+
+                                            <!-- In orders/order_detail.html or orders/order_list.html -->
+{% if order.status == 'pending' or order.status == 'processing' %}
+    <form method="POST" action="{% url 'orders:cancel_order' order.id %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to cancel this order? This action cannot be undone.')">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger btn-sm">
+            <i class="fas fa-times"></i> Cancel Order
+        </button>
+    </form>
+{% endif %}
+
+<!-- For reorder functionality -->
+{% if order.status == 'delivered' %}
+    <form method="POST" action="{% url 'orders:reorder' order.id %}" style="display: inline;" onsubmit="return confirm('Add all items from this order to your cart?')">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary btn-sm">
+            <i class="fas fa-redo"></i> Reorder
+        </button>
+    </form>
+{% endif %}
+
+
+
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination if needed -->
+        {% if orders.has_other_pages %}
+            <nav aria-label="Orders pagination">
+                <ul class="pagination justify-content-center">
+                    {% if orders.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ orders.previous_page_number }}">Previous</a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for num in orders.paginator.page_range %}
+                        {% if orders.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num > orders.number|add:'-3' and num < orders.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if orders.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ orders.next_page_number }}">Next</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+
+    {% else %}
+        <!-- Empty State -->
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="fas fa-shopping-bag fa-5x text-muted mb-4"></i>
+                    <h3>No Orders Yet</h3>
+                    <p class="text-muted mb-4">You haven't placed any orders yet. Start shopping to see your orders here!</p>
+                    <a href="{% url 'products:product_list' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-shopping-bag"></i> Start Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    // {% csrf_token %}
+
+function cancelOrder(orderId) {
+    if (confirm('Are you sure you want to cancel this order? This action cannot be undone.')) {
+        // Show loading state
+        const button = event.target;
+        const originalText = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelling...';
+        
+        fetch(`/orders/cancel/${orderId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                showAlert('success', data.message);
+                
+                // Reload page after short delay to show updated status
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                showAlert('danger', data.message || 'Error cancelling order');
+                // Restore button
+                button.disabled = false;
+                button.innerHTML = originalText;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('danger', 'Error cancelling order. Please try again.');
+            // Restore button
+            button.disabled = false;
+            button.innerHTML = originalText;
+        });
+    }
+}
+
+function reorderItems(orderId) {
+    if (confirm('Add all items from this order to your cart?')) {
+        const button = event.target;
+        const originalText = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+        
+        fetch(`/orders/reorder/${orderId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                showAlert('success', data.message);
+                
+                // Redirect to cart if specified
+                if (data.redirect_url) {
+                    setTimeout(() => {
+                        window.location.href = data.redirect_url;
+                    }, 1500);
+                }
+            } else {
+                showAlert('danger', data.message || 'Error reordering items');
+                button.disabled = false;
+                button.innerHTML = originalText;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('danger', 'Error reordering items. Please try again.');
+            button.disabled = false;
+            button.innerHTML = originalText;
+        });
+    }
+}
+
+function showAlert(type, message) {
+    // Remove existing alerts
+    const existingAlerts = document.querySelectorAll('.alert-notification');
+    existingAlerts.forEach(alert => alert.remove());
+    
+    // Create new alert
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show alert-notification`;
+    alertDiv.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i> 
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    // Insert at top of container
+    const container = document.querySelector('.container');
+    container.insertBefore(alertDiv, container.firstChild);
+    
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+        if (alertDiv) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}
+</script>
+
+
+
+
+
+
+
+{% endblock %}

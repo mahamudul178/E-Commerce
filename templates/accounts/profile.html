@@ -1,0 +1,194 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile - ShopEase{% endblock %}
+
+{% block content %}
+
+
+<div class="container py-4">
+    <div class="row">
+        <!-- Profile Sidebar -->
+        <div class="col-lg-3 mb-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <!-- Profile Picture -->
+                    <div class="position-relative d-inline-block mb-3">
+                        <img src="{{ profile.get_avatar_url }}" alt="{{ user.get_full_name }}" class="rounded-circle"
+                            width="120" height="120" style="object-fit: cover;">
+                        <button class="btn btn-sm btn-primary position-absolute bottom-0 end-0 rounded-circle"
+                            data-bs-toggle="modal" data-bs-target="#profilePictureModal"
+                            style="width: 30px; height: 30px;">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                    </div>
+
+                    <h5 class="mb-1">{{ user.get_full_name|default:user.username }}</h5>
+                    <p class="text-muted mb-2">@{{ user.username }}</p>
+
+                    {% if profile.location %}
+                    <p class="text-muted mb-3">
+                        <i class="fas fa-map-marker-alt"></i> {{ profile.location }}
+                    </p>
+                    {% endif %}
+
+                    <!-- Profile Completion -->
+                    <div class="mb-3">
+                        <small class="text-muted">Profile Completion</small>
+                        <div class="progress mt-1" style="height: 8px;">
+                            <!-- <div class="progress-bar" style="width: {{ completion_percentage }}%"></div> -->
+                        </div>
+                        <small class="text-muted">{{ completion_percentage }}%</small>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'accounts:edit_profile' %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-edit"></i> Edit Profile
+                        </a>
+                        <a href="{% url 'accounts:account_settings' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-cog"></i> Settings
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-chart-bar"></i> Quick Stats</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Orders
+                            <span class="badge bg-primary rounded-pill">{{ stats.orders_count }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Wishlist Items
+                            <span class="badge bg-primary rounded-pill">{{ stats.wishlist_count }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Reviews
+                            <span class="badge bg-primary rounded-pill">{{ stats.reviews_count }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- Main Content Area -->
+        <div class="col-lg-9">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-user"></i> Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Full Name:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            {{ user.get_full_name|default:"Not Provided" }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Email:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            {{ user.email|default:"Not Provided" }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Username:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            @{{ user.username }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Phone:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            {{ profile.phone|default:"Not Provided" }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Location:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            {{ profile.location|default:"Not Provided" }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Member Since:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            {{ user.date_joined|date:"F j, Y" }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <strong>Last Login:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            {{ user.last_login|date:"F j, Y, g:i a" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-map-marker-alt"></i> Addresses</h5>
+                </div>
+                <div class="card-body">
+                    {% if addresses %}
+                    <div class="list-group">
+                        {% for address in addresses %}
+                        <div class="list-group-item mb-3">
+                            <h6 class="mb-1">{{ address.get_address_type_display }} Address</h6>
+                            <p class="mb-1">
+                                {{ address.street }}<br>
+                                {{ address.city }}, {{ address.state }} {{ address.zip_code }}<br>
+                                {{ address.country }}
+                            </p>
+                            <small class="text-muted">Added on {{ address.added_on|date:"F j, Y" }}</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No addresses added yet. <a href="{% url 'accounts:add_address' %}">Add an
+                            address</a>.</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-history"></i> Recent Activities</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_activities %}
+                    <ul class="list-group">
+                        {% for activity in recent_activities %}
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success"></i> {{ activity.description }}
+                            <br>
+                            <small class="text-muted">{{ activity.timestamp|date:"F j, Y, g:i a" }}</small>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted">No recent activities.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

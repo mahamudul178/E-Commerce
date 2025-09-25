@@ -1,0 +1,333 @@
+<!-- orders/checkout.html - FIXED VERSION -->
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Checkout - ShopEase{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex align-items-center mb-4">
+                <i class="fas fa-credit-card fa-2x text-primary me-3"></i>
+                <h2>Checkout</h2>
+            </div>
+            
+            <!-- Progress Steps -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between">
+                        <div class="text-center flex-fill">
+                            <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="mt-2"><small>Cart</small></div>
+                        </div>
+                        <div class="text-center flex-fill">
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <i class="fas fa-address-card"></i>
+                            </div>
+                            <div class="mt-2"><small>Checkout</small></div>
+                        </div>
+                        <div class="text-center flex-fill">
+                            <div class="bg-secondary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <div class="mt-2"><small>Payment</small></div>
+                        </div>
+                        <div class="text-center flex-fill">
+                            <div class="bg-secondary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="mt-2"><small>Complete</small></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <form method="POST">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Billing Information -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-user"></i> Billing Information</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if user_addresses %}
+                            <div class="mb-3">
+                                <label class="form-label">Choose from saved addresses</label>
+                                <select class="form-select" id="savedBillingAddress">
+                                    <option value="">Enter new address</option>
+                                    {% for address in user_addresses %}
+                                        <option value="{{ address.id }}">{{ address }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <hr>
+                        {% endif %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.billing_name.id_for_label }}" class="form-label">Full Name *</label>
+                                {{ form.billing_name }}
+                                {% if form.billing_name.errors %}
+                                    <div class="text-danger">{{ form.billing_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.billing_email.id_for_label }}" class="form-label">Email *</label>
+                                {{ form.billing_email }}
+                                {% if form.billing_email.errors %}
+                                    <div class="text-danger">{{ form.billing_email.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.billing_phone.id_for_label }}" class="form-label">Phone *</label>
+                                {{ form.billing_phone }}
+                                {% if form.billing_phone.errors %}
+                                    <div class="text-danger">{{ form.billing_phone.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.billing_country.id_for_label }}" class="form-label">Country *</label>
+                                {{ form.billing_country }}
+                                {% if form.billing_country.errors %}
+                                    <div class="text-danger">{{ form.billing_country.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.billing_address_1.id_for_label }}" class="form-label">Address Line 1 *</label>
+                            {{ form.billing_address_1 }}
+                            {% if form.billing_address_1.errors %}
+                                <div class="text-danger">{{ form.billing_address_1.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.billing_address_2.id_for_label }}" class="form-label">Address Line 2</label>
+                            {{ form.billing_address_2 }}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.billing_city.id_for_label }}" class="form-label">City *</label>
+                                {{ form.billing_city }}
+                                {% if form.billing_city.errors %}
+                                    <div class="text-danger">{{ form.billing_city.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.billing_state.id_for_label }}" class="form-label">State *</label>
+                                {{ form.billing_state }}
+                                {% if form.billing_state.errors %}
+                                    <div class="text-danger">{{ form.billing_state.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.billing_postal_code.id_for_label }}" class="form-label">Postal Code *</label>
+                                {{ form.billing_postal_code }}
+                                {% if form.billing_postal_code.errors %}
+                                    <div class="text-danger">{{ form.billing_postal_code.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Shipping Information -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-truck"></i> Shipping Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check mb-3">
+                            {{ form.same_as_billing }}
+                            <label class="form-check-label" for="{{ form.same_as_billing.id_for_label }}">
+                                Same as billing address
+                            </label>
+                        </div>
+                        
+                        <div id="shippingFields" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.shipping_name.id_for_label }}" class="form-label">Full Name</label>
+                                    {{ form.shipping_name }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.shipping_phone.id_for_label }}" class="form-label">Phone</label>
+                                    {{ form.shipping_phone }}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.shipping_address_1.id_for_label }}" class="form-label">Address Line 1</label>
+                                {{ form.shipping_address_1 }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.shipping_address_2.id_for_label }}" class="form-label">Address Line 2</label>
+                                {{ form.shipping_address_2 }}
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ form.shipping_city.id_for_label }}" class="form-label">City</label>
+                                    {{ form.shipping_city }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ form.shipping_state.id_for_label }}" class="form-label">State</label>
+                                    {{ form.shipping_state }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ form.shipping_postal_code.id_for_label }}" class="form-label">Postal Code</label>
+                                    {{ form.shipping_postal_code }}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="{{ form.shipping_country.id_for_label }}" class="form-label">Country</label>
+                                {{ form.shipping_country }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Summary - USING VIEW CALCULATIONS -->
+            <div class="col-lg-4">
+                <div class="card sticky-top">
+                    <div class="card-header">
+                        <h5><i class="fas fa-receipt"></i> Order Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for item in cart.items.all %}
+                            <div class="d-flex justify-content-between mb-2">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0">{{ item.product.name }}</h6>
+                                    <small class="text-muted">Qty: {{ item.quantity }} × ${{ item.product.price }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <strong>${{ item.get_total_price }}</strong>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        
+                        <hr>
+                        
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <span>${{ subtotal|floatformat:2 }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Shipping:</span>
+                            <span>${{ shipping_cost|floatformat:2 }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tax ({{ tax_rate_percent }}%):</span>
+                            <span>${{ tax_amount|floatformat:2 }}</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between fw-bold fs-5">
+                            <span>Total:</span>
+                            <span>${{ total|floatformat:2 }}</span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary w-100 btn-lg">
+                            <i class="fas fa-credit-card"></i> Proceed to Payment
+                        </button>
+                        <a href="{% url 'cart:cart_detail' %}" class="btn btn-outline-secondary w-100 mt-2">
+                            <i class="fas fa-arrow-left"></i> Back to Cart
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Toggle shipping fields based on "same as billing" checkbox
+    const sameAsBillingCheck = document.getElementById('{{ form.same_as_billing.id_for_label }}');
+    const shippingFields = document.getElementById('shippingFields');
+    
+    if (sameAsBillingCheck) {
+        sameAsBillingCheck.addEventListener('change', function() {
+            if (this.checked) {
+                shippingFields.style.display = 'none';
+                // Copy billing to shipping fields
+                copyBillingToShipping();
+            } else {
+                shippingFields.style.display = 'block';
+            }
+        });
+        
+        // Initialize on page load
+        if (!sameAsBillingCheck.checked) {
+            shippingFields.style.display = 'block';
+        }
+    }
+    
+    function copyBillingToShipping() {
+        // Copy billing information to shipping fields when "same as billing" is checked
+        const billingFields = ['name', 'phone', 'address_1', 'address_2', 'city', 'state', 'postal_code', 'country'];
+        
+        billingFields.forEach(field => {
+            const billingField = document.getElementById(`id_billing_${field}`);
+            const shippingField = document.getElementById(`id_shipping_${field}`);
+            
+            if (billingField && shippingField) {
+                shippingField.value = billingField.value;
+            }
+        });
+    }
+    
+    // Add form validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const requiredFields = ['billing_name', 'billing_email', 'billing_phone', 'billing_address_1', 'billing_city', 'billing_state', 'billing_postal_code', 'billing_country'];
+        let isValid = true;
+        
+        requiredFields.forEach(fieldName => {
+            const field = document.getElementById(`id_${fieldName}`);
+            if (field && !field.value.trim()) {
+                isValid = false;
+                field.classList.add('is-invalid');
+            } else if (field) {
+                field.classList.remove('is-invalid');
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Please fill in all required fields.');
+        }
+    });
+
+    // Add Bootstrap form control classes to form fields
+    document.addEventListener('DOMContentLoaded', function() {
+        const formInputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], select, textarea');
+        formInputs.forEach(input => {
+            if (!input.classList.contains('form-control') && !input.classList.contains('form-select')) {
+                if (input.tagName === 'SELECT') {
+                    input.classList.add('form-select');
+                } else {
+                    input.classList.add('form-control');
+                }
+            }
+        });
+        
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.classList.add('form-check-input');
+        });
+    });
+</script>
+{% endblock %}

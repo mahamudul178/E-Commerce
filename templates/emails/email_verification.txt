@@ -1,0 +1,15 @@
+email_verification_txt = """
+Welcome to {{ site_name }}!
+
+Hi {{ user.first_name|default:user.username }},
+
+Thank you for registering with {{ site_name }}! To complete your registration and activate your account, please click the verification link below:
+
+{{ verification_link }}
+
+This verification link will expire in 7 days.
+
+If you didn't create an account with {{ site_name }}, please ignore this email.
+
+© {{ site_name }} - Your trusted shopping destination
+"""

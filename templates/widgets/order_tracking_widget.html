@@ -1,0 +1,290 @@
+<div class="order-tracking-widget">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h6 class="mb-0">
+                <i class="fas fa-truck"></i> Track Your Orders
+            </h6>
+        </div>
+        <div class="card-body">
+            {% if user.is_authenticated %}
+                <!-- For logged-in users -->
+                <div id="userOrderStatus" class="user-order-status">
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <span class="ms-2">Loading order status...</span>
+                    </div>
+                </div>
+            {% else %}
+                <!-- For guest users -->
+                <form id="trackOrderForm" class="track-order-form">
+                    <div class="mb-3">
+                        <label for="orderNumber" class="form-label">Order Number</label>
+                        <input type="text" class="form-control" id="orderNumber" placeholder="e.g., ORD-A1B2C3" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="orderEmail" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="orderEmail" placeholder="Your email address" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i> Track Order
+                    </button>
+                </form>
+                
+                <div id="trackingResults" class="tracking-results mt-3" style="display: none;">
+                    <!-- Results will be loaded here -->
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    {% if user.is_authenticated %}
+        // Load user order status
+        loadUserOrderStatus();
+    {% else %}
+        // Handle guest order tracking
+        document.getElementById('trackOrderForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            trackGuestOrder();
+        });
+    {% endif %}
+});
+
+{% if user.is_authenticated %}
+function loadUserOrderStatus() {
+    fetch('/orders/api/stats/')
+        .then(response => response.json())
+        .then(data => {
+            displayUserOrderStatus(data);
+        })
+        .catch(error => {
+            console.error('Error loading order status:', error);
+            document.getElementById('userOrderStatus').innerHTML = 
+                '<div class="text-danger"><i class="fas fa-exclamation-triangle"></i> Error loading order status</div>';
+        });
+}
+
+function displayUserOrderStatus(stats) {
+    const container = document.getElementById('userOrderStatus');
+    
+    if (stats.total_orders === 0) {
+        container.innerHTML = `
+            <div class="text-center text-muted">
+                <i class="fas fa-shopping-bag fa-2x mb-2"></i>
+                <p class="mb-0">No orders yet</p>
+                <small>Start shopping to see your orders here</small>
+            </div>
+        `;
+        return;
+    }
+    
+    let statusHtml = `
+        <div class="order-stats">
+            <div class="row text-center">
+                <div class="col-6">
+                    <div class="stat-item">
+                        <h4 class="text-primary mb-1">${stats.total_orders}</h4>
+                        <small class="text-muted">Total Orders</small>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="stat-item">
+                        <h4 class="text-success mb-1">$${stats.total_spent.toFixed(2)}</h4>
+                        <small class="text-muted">Total Spent</small>
+                    </div>
+                </div>
+            </div>
+            
+            <hr class="my-3">
+            
+            <div class="status-breakdown">
+    `;
+    
+    // Add status counts if they exist
+    if (stats.pending_orders > 0) {
+        statusHtml += `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span><i class="fas fa-clock text-warning"></i> Pending</span>
+                <span class="badge bg-warning">${stats.pending_orders}</span>
+            </div>
+        `;
+    }
+    
+    if (stats.processing_orders > 0) {
+        statusHtml += `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span><i class="fas fa-cogs text-info"></i> Processing</span>
+                <span class="badge bg-info">${stats.processing_orders}</span>
+            </div>
+        `;
+    }
+    
+    if (stats.shipped_orders > 0) {
+        statusHtml += `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span><i class="fas fa-shipping-fast text-secondary"></i> Shipped</span>
+                <span class="badge bg-secondary">${stats.shipped_orders}</span>
+            </div>
+        `;
+    }
+    
+    if (stats.delivered_orders > 0) {
+        statusHtml += `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span><i class="fas fa-check-circle text-success"></i> Delivered</span>
+                <span class="badge bg-success">${stats.delivered_orders}</span>
+            </div>
+        `;
+    }
+    
+    statusHtml += `
+            </div>
+        </div>
+        
+        <div class="mt-3">
+            <a href="/orders/" class="btn btn-outline-primary btn-sm w-100">
+                <i class="fas fa-eye"></i> View All Orders
+            </a>
+        </div>
+    `;
+    
+    // Show most recent order if available
+    if (stats.most_recent_order) {
+        const order = stats.most_recent_order;
+        const statusColor = {
+            'pending': 'warning',
+            'processing': 'info',
+            'shipped': 'secondary',
+            'delivered': 'success',
+            'cancelled': 'danger'
+        }[order.status] || 'secondary';
+        
+        statusHtml += `
+            <div class="mt-3 p-2 bg-light rounded">
+                <small class="text-muted">Most Recent Order</small>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>${order.order_number}</strong><br>
+                        <small class="text-muted">$${order.total.toFixed(2)}</small>
+                    </div>
+                    <span class="badge bg-${statusColor}">${order.status}</span>
+                </div>
+            </div>
+        `;
+    }
+    
+    container.innerHTML = statusHtml;
+}
+{% endif %}
+
+function trackGuestOrder() {
+    const orderNumber = document.getElementById('orderNumber').value;
+    const email = document.getElementById('orderEmail').value;
+    const resultsContainer = document.getElementById('trackingResults');
+    
+    // Show loading state
+    resultsContainer.innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+            <span class="ms-2">Tracking your order...</span>
+        </div>
+    `;
+    resultsContainer.style.display = 'block';
+    
+    fetch(`/orders/track/${orderNumber}/?email=${encodeURIComponent(email)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                resultsContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> ${data.error}
+                    </div>
+                `;
+            } else {
+                displayTrackingResults(data);
+            }
+        })
+        .catch(error => {
+            console.error('Error tracking order:', error);
+            resultsContainer.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i> Error tracking order. Please try again.
+                </div>
+            `;
+        });
+}
+
+function displayTrackingResults(tracking) {
+    const resultsContainer = document.getElementById('trackingResults');
+    
+    let html = `
+        <div class="alert alert-success">
+            <h6><i class="fas fa-check-circle"></i> Order Found!</h6>
+            <p class="mb-1"><strong>Order:</strong> ${tracking.order_number}</p>
+            <p class="mb-1"><strong>Status:</strong> <span class="badge bg-primary">${tracking.status}</span></p>
+            <p class="mb-0"><strong>Total:</strong> $${tracking.total.toFixed(2)}</p>
+        </div>
+        
+        <div class="tracking-timeline">
+            <h6>Order Progress</h6>
+    `;
+    
+    tracking.tracking_steps.forEach((step, index) => {
+        const isCompleted = step.completed;
+        const iconClass = isCompleted ? 'fas fa-check-circle text-success' : 'far fa-circle text-muted';
+        const textClass = isCompleted ? 'text-dark' : 'text-muted';
+        
+        html += `
+            <div class="d-flex align-items-start mb-3">
+                <div class="me-3">
+                    <i class="${iconClass}"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="${textClass}">
+                        <strong>${step.title}</strong>
+                        ${step.date ? `<small class="text-muted d-block">${new Date(step.date).toLocaleDateString()}</small>` : ''}
+                        <small class="d-block">${step.description}</small>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    
+    resultsContainer.innerHTML = html;
+}
+
+// Add some CSS for better styling
+const style = document.createElement('style');
+style.textContent = `
+    .order-tracking-widget .stat-item h4 {
+        font-size: 1.25rem;
+        font-weight: bold;
+    }
+    
+    .tracking-timeline {
+        position: relative;
+    }
+    
+    .tracking-timeline::before {
+        content: '';
+        position: absolute;
+        left: 8px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #dee2e6;
+        z-index: -1;
+    }
+    
+    .order-tracking-widget .card {
+        max-width: 400px;
+    }
+`;
+document.head.appendChild(style);
+</script>

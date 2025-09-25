@@ -1,0 +1,190 @@
+<!-- accounts/edit_profile.html -->
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Edit Profile - ShopEase{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-edit"></i> Edit Profile
+                        <span class="float-end">
+                            <small>{{ completion_percentage }}% Complete</small>
+                        </span>
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- Basic Information -->
+                        <h5 class="border-bottom pb-2 mb-4">
+                            <i class="fas fa-user"></i> Basic Information
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ user_form.first_name.id_for_label }}" class="form-label">First Name *</label>
+                                {{ user_form.first_name }}
+                                {% if user_form.first_name.errors %}
+                                    <div class="text-danger">{{ user_form.first_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ user_form.last_name.id_for_label }}" class="form-label">Last Name *</label>
+                                {{ user_form.last_name }}
+                                {% if user_form.last_name.errors %}
+                                    <div class="text-danger">{{ user_form.last_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ user_form.username.id_for_label }}" class="form-label">Username *</label>
+                                {{ user_form.username }}
+                                {% if user_form.username.errors %}
+                                    <div class="text-danger">{{ user_form.username.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ user_form.email.id_for_label }}" class="form-label">Email *</label>
+                                {{ user_form.email }}
+                                {% if user_form.email.errors %}
+                                    <div class="text-danger">{{ user_form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Personal Information -->
+                        <h5 class="border-bottom pb-2 mb-4 mt-4">
+                            <i class="fas fa-id-card"></i> Personal Information
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ profile_form.phone.id_for_label }}" class="form-label">Phone</label>
+                                {{ profile_form.phone }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ profile_form.birth_date.id_for_label }}" class="form-label">Birth Date</label>
+                                {{ profile_form.birth_date }}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ profile_form.gender.id_for_label }}" class="form-label">Gender</label>
+                                {{ profile_form.gender }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ profile_form.location.id_for_label }}" class="form-label">Location</label>
+                                {{ profile_form.location }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ profile_form.bio.id_for_label }}" class="form-label">Bio</label>
+                            {{ profile_form.bio }}
+                            <div class="form-text">Tell us about yourself (max 500 characters)</div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ profile_form.website.id_for_label }}" class="form-label">Website</label>
+                                {{ profile_form.website }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ profile_form.avatar.id_for_label }}" class="form-label">Profile Picture</label>
+                                {{ profile_form.avatar }}
+                                {% if profile_form.avatar.errors %}
+                                    <div class="text-danger">{{ profile_form.avatar.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Social Media Links -->
+                        <h5 class="border-bottom pb-2 mb-4 mt-4">
+                            <i class="fas fa-share-alt"></i> Social Media
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ profile_form.facebook.id_for_label }}" class="form-label">Facebook</label>
+                                {{ profile_form.facebook }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ profile_form.twitter.id_for_label }}" class="form-label">Twitter</label>
+                                {{ profile_form.twitter }}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ profile_form.instagram.id_for_label }}" class="form-label">Instagram</label>
+                                {{ profile_form.instagram }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ profile_form.linkedin.id_for_label }}" class="form-label">LinkedIn</label>
+                                {{ profile_form.linkedin }}
+                            </div>
+                        </div>
+
+                        <!-- Notification Preferences -->
+                        <h5 class="border-bottom pb-2 mb-4 mt-4">
+                            <i class="fas fa-bell"></i> Notification Preferences
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="form-check">
+                                    {{ profile_form.email_notifications }}
+                                    <label class="form-check-label" for="{{ profile_form.email_notifications.id_for_label }}">
+                                        Email Notifications
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="form-check">
+                                    {{ profile_form.sms_notifications }}
+                                    <label class="form-check-label" for="{{ profile_form.sms_notifications.id_for_label }}">
+                                        SMS Notifications
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="form-check">
+                                    {{ profile_form.newsletter_subscription }}
+                                    <label class="form-check-label" for="{{ profile_form.newsletter_subscription.id_for_label }}">
+                                        Newsletter Subscription
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Form Actions -->
+                        <div class="border-top pt-4 mt-4">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <a href="{% url 'accounts:profile' %}" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </a>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Save Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

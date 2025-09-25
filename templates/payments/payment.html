@@ -1,0 +1,211 @@
+<!-- payments/payment.html -->
+{% extends 'base.html' %}
+
+{% block title %}Payment - ShopEase{% endblock %}
+
+{% block extra_css %}
+<style>
+    .StripeElement {
+        box-sizing: border-box;
+        height: 40px;
+        padding: 10px 12px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        background-color: white;
+        box-shadow: 0 1px 3px 0 #e6ebf1;
+        -webkit-transition: box-shadow 150ms ease;
+        transition: box-shadow 150ms ease;
+    }
+
+    .StripeElement--focus {
+        box-shadow: 0 1px 3px 0 #cfd7df;
+        border-color: #80bdff;
+    }
+
+    .StripeElement--invalid {
+        border-color: #dc3545;
+    }
+
+    .StripeElement--webkit-autofill {
+        background-color: #fefde5 !important;
+    }
+    
+    #card-errors {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-credit-card"></i> Secure Payment</h4>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Order Summary -->
+                    <div class="bg-light rounded p-3 mb-4">
+                        <h5 class="mb-3">Order Summary</h5>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Order #{{ order.order_number }}</span>
+                            <span>{{ order.get_total_items }} items</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <span>${{ order.subtotal }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Shipping:</span>
+                            <span>${{ order.shipping_cost }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tax:</span>
+                            <span>${{ order.tax_amount }}</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between fw-bold fs-5">
+                            <span>Total:</span>
+                            <span>${{ order.total }}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Form -->
+                    <form id="payment-form">
+                        <div class="mb-3">
+                            <label for="card-element" class="form-label">
+                                Credit or Debit Card
+                            </label>
+                            <div id="card-element" class="StripeElement">
+                                <!-- Stripe Elements will create form elements here -->
+                            </div>
+                            <div id="card-errors" role="alert"></div>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="savePayment">
+                            <label class="form-check-label" for="savePayment">
+                                Save payment information for future purchases
+                            </label>
+                        </div>
+                        
+                        <button id="submit-payment" class="btn btn-primary btn-lg w-100">
+                            <span id="button-text">
+                                <i class="fas fa-lock"></i> Pay ${{ order.total }}
+                            </span>
+                            <div id="spinner" class="spinner-border spinner-border-sm" role="status" style="display: none;">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </button>
+                        
+                        <div class="text-center mt-3">
+                            <small class="text-muted">
+                                <i class="fas fa-shield-alt"></i> Your payment information is secure and encrypted
+                            </small>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-muted">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <small>Powered by Stripe</small>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <img src="https://via.placeholder.com/40x25/007bff/fff?text=VISA" alt="Visa" class="me-1">
+                            <img src="https://via.placeholder.com/40x25/ff6900/fff?text=MC" alt="Mastercard" class="me-1">
+                            <img src="https://via.placeholder.com/40x25/009cde/fff?text=AMEX" alt="American Express">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    const stripe = Stripe('{{ stripe_publishable_key }}');
+    const elements = stripe.elements();
+
+    // Create card element
+    const cardElement = elements.create('card', {
+        style: {
+            base: {
+                fontSize: '16px',
+                color: '#424770',
+                '::placeholder': {
+                    color: '#aab7c4',
+                },
+            },
+            invalid: {
+                color: '#9e2146',
+            },
+        },
+    });
+
+    cardElement.mount('#card-element');
+
+    // Handle real-time validation errors from the card Element
+    cardElement.on('change', function(event) {
+        const displayError = document.getElementById('card-errors');
+        if (event.error) {
+            displayError.textContent = event.error.message;
+        } else {
+            displayError.textContent = '';
+        }
+    });
+
+    // Handle form submission
+    const form = document.getElementById('payment-form');
+    const submitButton = document.getElementById('submit-payment');
+    const buttonText = document.getElementById('button-text');
+    const spinner = document.getElementById('spinner');
+
+    form.addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        // Disable submit button and show spinner
+        submitButton.disabled = true;
+        buttonText.style.display = 'none';
+        spinner.style.display = 'inline-block';
+
+        const {error} = await stripe.confirmCardPayment('{{ client_secret }}', {
+            payment_method: {
+                card: cardElement,
+                billing_details: {
+                    name: '{{ order.billing_name }}',
+                    email: '{{ order.billing_email }}',
+                    phone: '{{ order.billing_phone }}',
+                    address: {
+                        line1: '{{ order.billing_address_1 }}',
+                        line2: '{{ order.billing_address_2 }}',
+                        city: '{{ order.billing_city }}',
+                        state: '{{ order.billing_state }}',
+                        postal_code: '{{ order.billing_postal_code }}',
+                        country: '{{ order.billing_country|upper }}',
+                    }
+                }
+            }
+        });
+
+        if (error) {
+            // Show error to customer
+            const errorElement = document.getElementById('card-errors');
+            errorElement.textContent = error.message;
+
+            // Re-enable submit button
+            submitButton.disabled = false;
+            buttonText.style.display = 'inline';
+            spinner.style.display = 'none';
+        } else {
+            // Payment succeeded, redirect to success page
+            window.location.href = "{% url 'payments:payment_success' order.id %}";
+        }
+    });
+</script>
+{% endblock %}

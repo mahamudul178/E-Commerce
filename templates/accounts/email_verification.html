@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Verify Your Email - {{ site_name }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 30px; border-radius: 10px; }
+        .header { text-align: center; color: #333; }
+        .content { background: white; padding: 30px; border-radius: 8px; margin: 20px 0; }
+        .button { background: #007bff; color: white; padding: 15px 30px; text-decoration: none; 
+                  border-radius: 5px; display: inline-block; font-weight: bold; }
+        .link-box { background: #f8f9fa; padding: 15px; border-radius: 5px; word-break: break-all; 
+                   border-left: 4px solid #007bff; }
+        .footer { text-align: center; color: #666; font-size: 12px; margin-top: 30px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="header">🛒 Welcome to {{ site_name }}!</h2>
+        
+        <div class="content">
+            <p><strong>Hi {{ user.first_name|default:user.username }},</strong></p>
+            
+            <p>Thank you for registering with <strong>{{ site_name }}</strong>! We're excited to have you join our community.</p>
+            
+            <p>To complete your registration and activate your account, please click the verification button below:</p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{{ verification_link }}" class="button">
+                    ✅ Verify Email Address
+                </a>
+            </div>
+            
+            <p>Or copy and paste this link in your browser:</p>
+            <div class="link-box">{{ verification_link }}</div>
+            
+            <div style="background: #fff3cd; padding: 15px; border-radius: 5px; border-left: 4px solid #ffc107; margin: 20px 0;">
+                <strong>⚠️ Important:</strong> This verification link will expire in 7 days for security reasons.
+            </div>
+            
+            <p>After verification, you'll be able to:</p>
+            <ul>
+                <li>✨ Browse and purchase products</li>
+                <li>🚚 Track your orders</li>
+                <li>💰 Get exclusive deals and discounts</li>
+                <li>⭐ Leave reviews and ratings</li>
+            </ul>
+            
+            <p>If you didn't create an account with {{ site_name }}, please ignore this email.</p>
+        </div>
+        
+        <div class="footer">
+            <p>© {{ site_name }} - Your trusted shopping destination</p>
+            <p>Need help? Contact us at support@shopease.com</p>
+        </div>
+    </div>
+</body>
+</html>

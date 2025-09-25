@@ -1,0 +1,194 @@
+<!-- templates/accounts/complete_google_profile.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Welcome to ShopEase{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-success text-white text-center py-4">
+                    <h3 class="mb-0">
+                        <i class="fab fa-google me-2"></i>
+                        Welcome to ShopEase!
+                    </h3>
+                    <p class="mb-0">Your Google account has been connected successfully</p>
+                </div>
+                <div class="card-body p-5">
+                    <!-- Success Message -->
+                    <div class="text-center mb-4">
+                        <div class="d-flex justify-content-center align-items-center mb-3">
+                            <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                                <i class="fas fa-check fa-2x text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-1">Hello, {{ user.first_name|default:user.username }}!</h4>
+                                <p class="text-muted mb-0">{{ user.email }}</p>
+                            </div>
+                        </div>
+                        
+                        {% if user.profile.get_avatar_url != '/static/images/default-avatar.png' %}
+                            <img src="{{ user.profile.get_avatar_url }}" 
+                                 alt="{{ user.get_full_name }}" 
+                                 class="rounded-circle border border-3 border-success mb-3" 
+                                 width="100" 
+                                 height="100"
+                                 style="object-fit: cover;">
+                        {% endif %}
+                    </div>
+                    
+                    <!-- What's Next Section -->
+                    <div class="alert alert-info">
+                        <h5><i class="fas fa-lightbulb"></i> What's next?</h5>
+                        <p class="mb-0">Complete your profile to get the best shopping experience!</p>
+                    </div>
+                    
+                    <!-- Profile Completion Checklist -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-check-circle text-success"></i> Already Set Up:</h6>
+                            <ul class="list-unstyled ms-3">
+                                <li><i class="fas fa-check text-success me-2"></i> Account created</li>
+                                {% if user.first_name %}
+                                    <li><i class="fas fa-check text-success me-2"></i> Name: {{ user.get_full_name }}</li>
+                                {% endif %}
+                                <li><i class="fas fa-check text-success me-2"></i> Email: {{ user.email }}</li>
+                                {% if user.profile.avatar or user.profile.avatar_url %}
+                                    <li><i class="fas fa-check text-success me-2"></i> Profile picture</li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-plus-circle text-primary"></i> Complete Your Profile:</h6>
+                            <ul class="list-unstyled ms-3">
+                                {% if not user.profile.phone %}
+                                    <li><i class="fas fa-circle text-muted me-2"></i> Phone number</li>
+                                {% endif %}
+                                {% if not user.profile.birth_date %}
+                                    <li><i class="fas fa-circle text-muted me-2"></i> Birth date</li>
+                                {% endif %}
+                                {% if not user.addresses.exists %}
+                                    <li><i class="fas fa-circle text-muted me-2"></i> Delivery address</li>
+                                {% endif %}
+                                {% if not user.profile.bio %}
+                                    <li><i class="fas fa-circle text-muted me-2"></i> Personal bio</li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Benefits Section -->
+                    <div class="bg-light rounded p-4 mb-4">
+                        <h6><i class="fas fa-star text-warning"></i> Your Google Sign-In Benefits:</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled mb-0">
+                                    <li><i class="fas fa-shield-alt text-success me-2"></i> Enhanced security</li>
+                                    <li><i class="fas fa-key text-success me-2"></i> No password to remember</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled mb-0">
+                                    <li><i class="fas fa-sync text-success me-2"></i> Auto-sync across devices</li>
+                                    <li><i class="fas fa-bolt text-success me-2"></i> Faster checkout process</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <a href="{% url 'accounts:edit_profile' %}" class="btn btn-primary w-100 btn-lg">
+                                    <i class="fas fa-user-edit"></i> Complete Profile
+                                </a>
+                                <small class="text-muted d-block text-center mt-2">Recommended for best experience</small>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="{% url 'products:product_list' %}" class="btn btn-success w-100 btn-lg">
+                                    <i class="fas fa-shopping-bag"></i> Start Shopping
+                                </a>
+                                <small class="text-muted d-block text-center mt-2">Browse our amazing products</small>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-home"></i> Go to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Tips Section -->
+                    <div class="mt-4 pt-4 border-top">
+                        <h6><i class="fas fa-lightbulb text-warning"></i> Pro Tips:</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="d-flex">
+                                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-map-marker-alt text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h6>Add Your Address</h6>
+                                        <small class="text-muted">Make checkout faster by saving your delivery address</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex">
+                                    <div class="bg-info rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-heart text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h6>Create Wishlist</h6>
+                                        <small class="text-muted">Save products you love for later</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Footer -->
+                <div class="card-footer bg-light text-center">
+                    <small class="text-muted">
+                        <i class="fas fa-shield-alt"></i>
+                        Your account is secured with Google's industry-leading security
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Welcome Animation -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add a subtle welcome animation
+    const card = document.querySelector('.card');
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(30px)';
+    
+    setTimeout(() => {
+        card.style.transition = 'all 0.6s ease-out';
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+    }, 100);
+    
+    // Auto-redirect after 30 seconds if user doesn't interact
+    let autoRedirectTimer = setTimeout(() => {
+        if (confirm('Would you like to start shopping now?')) {
+            window.location.href = '{% url "products:product_list" %}';
+        }
+    }, 30000);
+    
+    // Cancel auto-redirect if user interacts with the page
+    document.addEventListener('click', () => {
+        clearTimeout(autoRedirectTimer);
+    }, { once: true });
+});
+</script>
+{% endblock %}
