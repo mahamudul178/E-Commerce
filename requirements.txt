@@ -8,7 +8,7 @@ Django==5.2.6
 django-allauth==65.11.1
 django-crispy-forms==2.1
 idna==3.10
-Pillow==10.0.1
+pillow==11.3.0
 pycparser==2.22
 PyJWT==2.10.1
 python-decouple==3.8
